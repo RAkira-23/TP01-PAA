@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar projeto",
+            "type": "process",
+            "command": "gcc",
+            "args": [
+                "-std=c11",
+                "-Wall",
+                "-Wextra",
+                "-Wpedantic",
+                "-g",
+                "${workspaceFolder}/main.c",
+                "${workspaceFolder}/Source/mapa.c",
+                "${workspaceFolder}/Source/busca.c",
+                "-o",
+                "${workspaceFolder}/output/main.exe"
+            ],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": ["$gcc"],
+            "group": { "kind": "build", "isDefault": true }
+        }
+    ]
+}
