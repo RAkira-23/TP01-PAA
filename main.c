@@ -1,12 +1,12 @@
 #include <stdio.h>
-#include "headers/mapa.h"
-#include "headers/busca.h"
+#include "Source/mapa.c"
+#include "Source/busca.c"
 
 int main(void) {
     int linhas = 0, colunas = 0, chaves = 0, opcao = 0;
     int **mapa = NULL;
     while (opcao != 7) {
-        puts("\n1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Saida de outra forma\n6) Limpar mapa\n7) Sair");
+        puts("1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Saida de outra forma\n6) Limpar mapa\n7) Sair");
         printf("Opcao: ");
         if (scanf("%d", &opcao) != 1) break;
         switch (opcao) {
@@ -25,20 +25,31 @@ int main(void) {
             break;
         }
         case 2:
-            if (!mapa) puts("Carregue o mapa primeiro.");
+            if (!mapa) puts("Carregue o mapa primeiro.\n");
             else encontrar_caminho(mapa, linhas, colunas, chaves);
             break;
         case 4:
-            if (!mapa) puts("Carregue o mapa primeiro.");
+            if (!mapa) puts("Carregue o mapa primeiro.\n");
             else salvar_todos_caminhos(mapa, linhas, colunas, chaves, "caminhos.txt");
             break;
-        case 3: case 5: puts("Opcao ainda nao implementada."); break;
+        case 3:
+            if (!mapa){
+                printf("Informe o valor de linhas: ");
+                scanf("%d",&linhas);
+                printf("Informe o valor de colunas: ");
+                scanf("%d",&colunas);
+                printf("Informe o valor de chaves: ");
+                scanf("%d",&chaves);
+                mapa = gerar_mapa(linhas,colunas, chaves, (unsigned int)time(NULL));
+            }else{printf("Mapa já existente, favor limpar ele primeiro");}
+            break;
+        case 5: puts("Opcao ainda nao implementada.\n"); break;
         case 6:
             limpar_mapa(mapa, linhas, colunas);
             mapa = NULL; linhas = colunas = chaves = 0;
-            puts("Mapa liberado."); break;
+            puts("Mapa liberado.\n"); break;
         case 7: break;
-        default: puts("Opcao invalida.");
+        default: puts("Opcao invalida.\n");
         }
     }
     limpar_mapa(mapa, linhas, colunas);
