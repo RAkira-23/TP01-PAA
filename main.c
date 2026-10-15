@@ -5,9 +5,15 @@
 int main(void) {
     int linhas = 0, colunas = 0, chaves = 0, opcao = 0;
     int **mapa = NULL;
+    bool analise = false;
     while (opcao != 7) {
+<<<<<<< Updated upstream
         puts("1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Saida de outra forma\n6) Limpar mapa\n7) Sair");
         printf("Opcao: ");
+=======
+        puts("\n1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Saida de outra forma\n6) Limpar mapa\n7) Sair\n8) Alternar modo de analise");
+        printf("Analise: %s\nOpcao: ", analise ? "ativada" : "desativada");
+>>>>>>> Stashed changes
         if (scanf("%d", &opcao) != 1) break;
         switch (opcao) {
         case 1: {
@@ -25,12 +31,21 @@ int main(void) {
             break;
         }
         case 2:
+<<<<<<< Updated upstream
             if (!mapa) puts("Carregue o mapa primeiro.\n");
             else encontrar_caminho(mapa, linhas, colunas, chaves);
             break;
         case 4:
             if (!mapa) puts("Carregue o mapa primeiro.\n");
             else salvar_todos_caminhos(mapa, linhas, colunas, chaves, "caminhos.txt");
+=======
+            if (!mapa) puts("Carregue o mapa primeiro.");
+            else encontrar_caminho(mapa, linhas, colunas, chaves, analise);
+            break;
+        case 4:
+            if (!mapa) puts("Carregue o mapa primeiro.");
+            else salvar_todos_caminhos(mapa, linhas, colunas, chaves, analise, "caminhos.txt");
+>>>>>>> Stashed changes
             break;
         case 3:
             if (!mapa){
@@ -49,7 +64,12 @@ int main(void) {
             mapa = NULL; linhas = colunas = chaves = 0;
             puts("Mapa liberado.\n"); break;
         case 7: break;
+<<<<<<< Updated upstream
         default: puts("Opcao invalida.\n");
+=======
+        case 8: analise = !analise; break;
+        default: puts("Opcao invalida.");
+>>>>>>> Stashed changes
         }
     }
     limpar_mapa(mapa, linhas, colunas);

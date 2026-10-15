@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <time.h>
 #include "../headers/busca.h"
 
 typedef struct { int linha, coluna; } Posicao;
@@ -9,7 +10,8 @@ typedef struct {
     int linhas, colunas, chaves;
     bool *visitado;
     Posicao *caminho;
-    size_t tamanho;
+    size_t tamanho, profundidade;
+    unsigned long long chamadas;
     unsigned long long total;
     bool todos, erro;
     FILE *arquivo;
@@ -22,9 +24,11 @@ static void imprimir_caminho(FILE *saida, const Busca *b) {
 }
 
 static bool buscar(Busca *b, int l, int c, int chaves) {
+    b->chamadas++;
     size_t indice = (size_t)l * b->colunas + c;
     b->visitado[indice] = true;
     b->caminho[b->tamanho++] = (Posicao){l, c};
+    if (b->tamanho > b->profundidade) b->profundidade = b->tamanho;
     if (b->mapa[l][c] == 3) chaves++;
     if (b->mapa[l][c] == 4 && chaves == b->chaves) {
         if (!b->todos) return true;
@@ -55,7 +59,7 @@ static bool buscar(Busca *b, int l, int c, int chaves) {
     return false;
 }
 
-static bool executar_busca(int **mapa, int linhas, int colunas, int chaves, bool todos, const char *nome_arquivo) {
+static bool executar_busca(int **mapa, int linhas, int colunas, int chaves, bool analise, bool todos, const char *nome_arquivo) {
     if (!mapa || linhas <= 0 || colunas <= 0 || chaves < 0) return false;
     if ((size_t)linhas > SIZE_MAX / (size_t)colunas) return false;
     size_t n = (size_t)linhas * colunas;
@@ -81,7 +85,9 @@ static bool executar_busca(int **mapa, int linhas, int colunas, int chaves, bool
     for (int i = 0; i < linhas; i++)
         for (int j = 0; j < colunas; j++)
             if (mapa[i][j] == 2) { l = i; c = j; }
+    clock_t inicio = clock();
     bool ok = l >= 0 && buscar(&b, l, c, 0);
+    clock_t fim = clock();
     if (todos) {
         ok = b.total > 0;
         if (!b.erro) {
@@ -101,15 +107,20 @@ static bool executar_busca(int **mapa, int linhas, int colunas, int chaves, bool
         puts("Caminho encontrado (coordenadas iniciam em zero):");
         imprimir_caminho(stdout, &b);
     } else puts("Nao ha um caminho possivel para a entrada de dados fornecida.");
+    if (analise) {
+        printf("Chamadas recursivas: %llu\nProfundidade maxima: %zu\n", b.chamadas, b.profundidade);
+        if (inicio != (clock_t)-1 && fim != (clock_t)-1)
+            printf("Tempo (ms): %.3f\n", 1000.0 * (double)(fim - inicio) / CLOCKS_PER_SEC);
+    }
     free(b.visitado); free(b.caminho);
     return ok;
 }
 
-bool encontrar_caminho(int **mapa, int linhas, int colunas, int chaves) {
-    return executar_busca(mapa, linhas, colunas, chaves, false, NULL);
+bool encontrar_caminho(int **mapa, int linhas, int colunas, int chaves, bool analise) {
+    return executar_busca(mapa, linhas, colunas, chaves, analise, false, NULL);
 }
 
-bool salvar_todos_caminhos(int **mapa, int linhas, int colunas, int chaves, const char *nome_arquivo) {
+bool salvar_todos_caminhos(int **mapa, int linhas, int colunas, int chaves, bool analise, const char *nome_arquivo) {
     if (!nome_arquivo) return false;
-    return executar_busca(mapa, linhas, colunas, chaves, true, nome_arquivo);
+    return executar_busca(mapa, linhas, colunas, chaves, analise, true, nome_arquivo);
 }
