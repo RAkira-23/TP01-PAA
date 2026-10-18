@@ -1,20 +1,21 @@
 #include <stdio.h>
 #include "Source/mapa.c"
 #include "Source/busca.c"
+#include "Source/globo.c"
 
 int main(void)
 {
     int linhas = 0, colunas = 0, chaves = 0, opcao = 0;
     int **mapa = NULL;
     bool analise = false;
-    while (opcao != 7)
-    {
-        puts("1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Saida de outra forma\n6) Limpar mapa\n7) Sair");
-        printf("Opcao: ");
-        puts("\n1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Saida de outra forma\n6) Limpar mapa\n7) Sair\n8) Alternar modo de analise");
+
+    while (opcao != 7){
+        puts("\n1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Movimentar no Globo\n6) Limpar mapa\n7) Sair\n8) Alternar modo de analise");
         printf("Analise: %s\nOpcao: ", analise ? "ativada" : "desativada");
+        
         if (scanf("%d", &opcao) != 1)
             break;
+
         switch (opcao)
         {
         case 1:
@@ -44,12 +45,6 @@ int main(void)
             else
                 encontrar_caminho(mapa, linhas, colunas, chaves, analise);
             break;
-        case 4:
-            if (!mapa)
-                puts("Carregue o mapa primeiro.");
-            else
-                salvar_todos_caminhos(mapa, linhas, colunas, chaves, analise, "caminhos.txt");
-            break;
         case 3:
             if (!mapa)
             {
@@ -63,11 +58,17 @@ int main(void)
             }
             else
             {
-                printf("Mapa já existente, favor limpar ele primeiro");
+                puts("Mapa ja existente, favor limpar ele primeiro.");
             }
             break;
+        case 4:
+            if (!mapa)
+                puts("Carregue o mapa primeiro.");
+            else
+                salvar_todos_caminhos(mapa, linhas, colunas, chaves, analise, "caminhos.txt");
+            break;
         case 5:
-            puts("Opcao ainda nao implementada.\n");
+            mover_no_globo(mapa, linhas, colunas);
             break;
         case 6:
             limpar_mapa(mapa, linhas, colunas);
