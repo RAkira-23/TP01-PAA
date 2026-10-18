@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <time.h>
 #include "Source/mapa.c"
 #include "Source/busca.c"
 #include "Source/globo.c"
@@ -10,10 +13,14 @@ int main(void){
     int **caminho = NULL;
     int linhas_caminho = 0;
     bool analise = false;
-    while (opcao != 7) {
-        puts("1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Saida de outra forma\n6) Limpar mapa\n7) Sair\n8) Alternar modo de analise");
+    
+    // Atualizado para sair apenas na opcao 8
+    while (opcao != 8) {
+        puts("1) Carregar mapa\n2) Buscar caminho\n3) Criar mapa\n4) Todos os caminhos\n5) Saida com tempo\n6) Limpar mapa\n7) Movimentar no Globo\n8) Sair\n9) Alternar modo de analise");
         printf("Analise: %s\nOpcao: ", analise ? "ativada" : "desativada");
+        
         if (scanf("%d", &opcao) != 1) break;
+        
         switch (opcao) {
         case 1: {
             int l, c, q;
@@ -49,7 +56,9 @@ int main(void){
                 printf("Informe o valor de chaves: ");
                 scanf("%d",&chaves);
                 mapa = gerar_mapa(linhas,colunas, chaves, (unsigned int)time(NULL));
-            }else{printf("Mapa já existente, favor limpar ele primeiro");}
+            }else{
+                printf("Mapa já existente, favor limpar ele primeiro\n");
+            }
             break;
         case 4:
             if (!mapa) puts("Carregue o mapa primeiro.");
@@ -67,14 +76,23 @@ int main(void){
             mapa = NULL; linhas = colunas = chaves = 0;
             limpar_mapa(caminho, linhas_caminho, 2);
             caminho = NULL; linhas_caminho = 0;
-            puts("Mapa liberado.\n"); break;
-        case 7: ;
-        case 8 break;
-        case 9: analise = !analise; break;
-        default: puts("Opcao invalida.");
+            puts("Mapa liberado.\n"); 
+            break;
+        case 7:
+            mover_no_globo(mapa, linhas, colunas);
+            break;
+        case 8:
+            // Sair do programa
+            break;
+        case 9: 
+            analise = !analise; 
+            break;
+        default: 
+            puts("Opcao invalida.");
         }
-    printf("\n");
+        printf("\n");
     }
+    
     limpar_mapa(mapa, linhas, colunas);
     limpar_mapa(caminho, linhas_caminho, 2);
     caminho = NULL;
