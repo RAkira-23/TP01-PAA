@@ -3,12 +3,97 @@
 #include <time.h>
 #include <stdbool.h>
 #include "../headers/mapa.h"
+#ifdef _WIN32
+    #include <windows.h>
+    #define sleep_ms(ms) Sleep(ms)
+#else
+    #include <unistd.h>
+    #define sleep_ms(ms) usleep((ms) * 1000)
+#endif
 
 //Define struct simples para montagem dos mapas
 typedef struct pos{
     int x;
     int y;
 } pos;
+
+// Imprime o mapa de forma interativa
+void imprime_mapa2(int** mapa, int altura, int largura){
+    if (!mapa || altura <= 0 || largura <= 0) return;
+    printf("|");
+    for (int k = 0; k < largura; k++) printf("-");
+    printf("|\n");
+    for (int i = 0; i < altura; i++) {
+        printf("|");
+        for (int j = 0; j < largura; j++){
+            if (mapa[i][j] == 0){
+                printf(" ");
+            } else if (mapa[i][j] == 1){
+                printf("#");
+            } else if (mapa[i][j] == 2){
+                printf("A");
+            } else if (mapa[i][j] == 3){
+                printf("C");
+            } else if (mapa[i][j] == 4){
+                printf("X");
+            } else {
+                printf(" ");
+            }
+        }
+        printf("|\n");
+    }
+    printf("|");
+    for (int k = 0; k < largura; k++) printf("-");
+    printf("|\n");
+}
+
+//Imprime o mapa de forma direta
+void imprime_mapa(int** mapa, int altura, int largura){
+        for (int i = 0; i < altura; i++) {
+            for (int j = 0; j < largura; j++){
+                    printf("%d", mapa[i][j]);
+        }
+        putchar('\n');
+    }
+}
+
+void imprime_com_tempo(int** mapa, int altura, int largura, int** caminho, int linha_caminho){
+    if (!mapa || !caminho || altura <= 0 || largura <= 0 || linha_caminho <= 0) return;
+    int **copia = malloc((size_t)altura * sizeof(int*));
+    if (!copia) return;
+    for (int i = 0; i < altura; i++) {
+        copia[i] = malloc((size_t)largura * sizeof(int));
+        if (!copia[i]) {
+            limpar_mapa(copia, i, largura);
+            return;
+        }
+        for (int j = 0; j < largura; j++) {
+            copia[i][j] = mapa[i][j];
+        }
+    }
+    int delay_ms = 500;
+    for (int passo = 0; passo < linha_caminho; passo++){
+        if (passo > 0) {
+            //a posicao anterior fica livre e a nova vira o aventureiro
+            int ant_l = caminho[passo - 1][0];
+            int ant_c = caminho[passo - 1][1];
+            copia[ant_l][ant_c] = 0;
+            int atual_l = caminho[passo][0];
+            int atual_c = caminho[passo][1];
+            copia[atual_l][atual_c] = 2;
+        }
+        //Limpa a tela antes da proxima impressao
+        system("cls");
+        imprime_mapa2(copia, altura, largura);
+        //aplica o intervalo de tempo
+        sleep_ms(delay_ms);
+        //aceleracao dinamica do tempo
+    }
+    //Pausa antes de mostrar o menu
+    sleep_ms(1000);
+    //limpa matriz copia
+    limpar_mapa(copia, altura, largura);
+}
 
 //retorna a distancia de 2 pontos
 int calcular_distancia(pos p1, pos p2) {
@@ -243,13 +328,7 @@ int** gerar_mapa(int altura, int largura, int chaves, unsigned int seed){
             }
         }
     }
-    //Imprime o mapa
-    for (int i = 0; i < altura; i++) {
-        for (int j = 0; j < largura; j++){
-            printf("%d ", mapa[i][j]);
-        }
-        putchar('\n');
-    }
+    imprime_mapa(mapa, altura, largura);
     free(localiza);
     return mapa;
 }
