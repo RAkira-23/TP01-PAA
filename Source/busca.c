@@ -17,7 +17,7 @@ typedef struct {
     FILE *arquivo;
 } Busca;
 
-static void imprimir_caminho(FILE *saida, const Busca *b) {
+static void imprimir_caminho(FILE *saida, const Busca *b){
     for (size_t i = 0; i < b->tamanho; i++)
         fprintf(saida, "%s[%d,%d]", i ? "," : "", b->caminho[i].linha, b->caminho[i].coluna);
     fputc('\n', saida);
@@ -59,7 +59,7 @@ static bool buscar(Busca *b, int l, int c, int chaves) {
     return false;
 }
 
-static bool executar_busca(int **mapa, int linhas, int colunas, int chaves, bool analise, bool todos, const char *nome_arquivo) {
+static bool executar_busca(int **mapa, int linhas, int colunas, int chaves, bool analise, bool todos, const char *nome_arquivo, int ***matriz_saida, int *tam_saida) {
     if (!mapa || linhas <= 0 || colunas <= 0 || chaves < 0) return false;
     if ((size_t)linhas > SIZE_MAX / (size_t)colunas) return false;
     size_t n = (size_t)linhas * colunas;
@@ -112,15 +112,33 @@ static bool executar_busca(int **mapa, int linhas, int colunas, int chaves, bool
         if (inicio != (clock_t)-1 && fim != (clock_t)-1)
             printf("Tempo (ms): %.3f\n", 1000.0 * (double)(fim - inicio) / CLOCKS_PER_SEC);
     }
+
+    if (!todos && ok && matriz_saida && tam_saida) {
+        *matriz_saida = malloc(b.tamanho * sizeof(int*));
+        if (*matriz_saida) {
+            for (size_t i = 0; i < b.tamanho; i++) {
+                (*matriz_saida)[i] = malloc(2 * sizeof(int));
+                if ((*matriz_saida)[i]) {
+                    (*matriz_saida)[i][0] = b.caminho[i].linha;
+                    (*matriz_saida)[i][1] = b.caminho[i].coluna;
+                }
+            }
+            *tam_saida = (int)b.tamanho;
+        }
+    }
+
     free(b.visitado); free(b.caminho);
     return ok;
 }
 
-bool encontrar_caminho(int **mapa, int linhas, int colunas, int chaves, bool analise) {
-    return executar_busca(mapa, linhas, colunas, chaves, analise, false, NULL);
+int** encontrar_caminho(int **mapa, int linhas, int colunas, int chaves, bool analise, int *tam_caminho) {
+    int **matriz = NULL;
+    if (tam_caminho) *tam_caminho = 0;
+    executar_busca(mapa, linhas, colunas, chaves, analise, false, NULL, &matriz, tam_caminho);
+    return matriz;
 }
 
 bool salvar_todos_caminhos(int **mapa, int linhas, int colunas, int chaves, bool analise, const char *nome_arquivo) {
     if (!nome_arquivo) return false;
-    return executar_busca(mapa, linhas, colunas, chaves, analise, true, nome_arquivo);
+    return executar_busca(mapa, linhas, colunas, chaves, analise, true, nome_arquivo, NULL, NULL);
 }
