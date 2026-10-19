@@ -1,7 +1,8 @@
 #ifndef GLOBO_H
 #define GLOBO_H
 
-typedef struct {
+typedef struct
+{
     int linha;
     int coluna;
 } Posicao;
